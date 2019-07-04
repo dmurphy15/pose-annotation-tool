@@ -34,7 +34,11 @@ class MainWindow(QMainWindow):
 			self.doOpenProject(dialog.selectedFiles()[0])
 			
 	def doOpenProject(self, projectPath):
-		f = open(os.path.join(projectPath, 'cfg.yaml'), 'r')
+		try:
+			f = open(os.path.join(projectPath, 'cfg.yaml'), 'r')
+		except Exception as e:
+			Alert(str(e)).exec_()
+			return
 		cfg = yaml.safe_load(f)
 		# unnecessary, but feels cleaner to access the fields when it's a namedtuple
 		cfg = namedtuple("cfg", cfg.keys())(*cfg.values())

@@ -8,7 +8,7 @@ from PySide2.QtCore import Qt, QPointF
 from ui_multiviewproject import Ui_MainWindow as Ui_MultiviewProjectMainWindow
 from alert import Alert
 from confirm import Confirm
-from imageviews import MainImageView, MiniImageView
+from imageviews import MainImageView, ImageView
 
 class MultiviewProjectMainWindow(QMainWindow):
 	def __init__(self, cfg):
@@ -21,8 +21,8 @@ class MultiviewProjectMainWindow(QMainWindow):
 
 		# read the data; if there is none, then create a new frame for the data
 		try:
-			data_pixel = pd.read_csv(os.path.join(cfg.projectFolder, 'pixel-annotation-data.csv'))
-			data_3d = pd.read_csv(os.path.join(cfg.projectFolder, '3d-annotation-data.csv'))
+			data_pixel = pd.read_csv(os.path.join(cfg.projectFolder, 'pixel-annotation-data.csv'), index_col=[0,1], header=[0,1])
+			data_3d = pd.read_csv(os.path.join(cfg.projectFolder, '3d-annotation-data.csv'), index_col=0, header=[0,1])
 		except FileNotFoundError:
 			data_pixel = pd.DataFrame(
 				columns=pd.MultiIndex.from_product([cfg.joints, ['u', 'v']], names=['joint', 'coordinate']),
@@ -151,7 +151,7 @@ class MultiviewProjectMainWindow(QMainWindow):
 			l = QLabel(w)
 			l.setText('View: %s'%str(view))
 			vLayout.addWidget(l)
-			v = MiniImageView(w)
+			v = ImageView(w)
 			vLayout.addWidget(v)
 			self.miniViews.append({
 				'container': w,
@@ -163,6 +163,7 @@ class MultiviewProjectMainWindow(QMainWindow):
 		self.loadPhotos()
 		self.loadAnnotations()
 
+		# helps register keypress events
 		self.setFocusPolicy(Qt.ClickFocus)
 
 	def loadPhotos(self):
@@ -193,7 +194,7 @@ class MultiviewProjectMainWindow(QMainWindow):
 					continue
 				self.miniViews[i]['view'].addAnnotation(QPointF(d['u']*r.width(), d['v']*r.height()), self.colors[j], self.radius, joint)
 				if not j in self.displaying:
-					self.mainView.hideAnnotation(joint)
+					self.miniViews[i]['view'].hideAnnotation(joint)
 
 	def setFrame(self, index):
 		if index >= len(self.images):
@@ -363,11 +364,11 @@ class MultiviewProjectMainWindow(QMainWindow):
 			while True:
 				if idx in self.displaying:
 					break
-				idx = (idx + 1) % len(self.cfg.joints)
+				idx = (idx + 1) % len(self.cfg.joints) 
 			self.jointIdx = idx
 			self.labelingButtons[self.jointIdx].setChecked(True)
 
 	def closeEvent(self, event):
-		pd.to_csv(os.path.join(self.cfg.projectFolder, 'pixel-annotation-data.csv', self.data_pixel))
-		pd.to_csv(os.path.join(self.cfg.projectFolder, '3d-annotation-data.csv', self.data_3d))
+		self.data_pixel.to_csv(os.path.join(self.cfg.projectFolder, 'pixel-annotation-data.csv'))
+		self.data_3d.to_csv(os.path.join(self.cfg.projectFolder, '3d-annotation-data.csv'))
 		super(MultiviewProjectMainWindow, self).closeEvent(event)

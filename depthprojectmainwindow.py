@@ -4,4 +4,4 @@ class DepthProjectMainWindow(QMainWindow):
 	def __init__(self, cfg):
 		self.cfg = cfg
 		super(DepthProjectMainWindow, self).__init__()
-		print('thanks, man!')
+		print('hey, man!')
