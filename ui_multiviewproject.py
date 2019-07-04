@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'multiviewproject.ui',
 # licensing of 'multiviewproject.ui' applies.
 #
-# Created: Thu Jul  4 11:24:28 2019
+# Created: Thu Jul  4 11:46:13 2019
 #      by: pyside2-uic  running on PySide2 5.9.0~a1
 #
 # WARNING! All changes made in this file will be lost!
@@ -147,6 +147,7 @@ class Ui_MainWindow(object):
         self.widget_11.setObjectName("widget_11")
         self.horizontalLayout_5.addWidget(self.widget_11)
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton.setToolTipDuration(-1)
         self.pushButton.setObjectName("pushButton")
         self.horizontalLayout_5.addWidget(self.pushButton)
         self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
@@ -180,6 +181,8 @@ class Ui_MainWindow(object):
         self.label_4.setText(QtWidgets.QApplication.translate("MainWindow", "Image:", None, -1))
         self.label_7.setText(QtWidgets.QApplication.translate("MainWindow", "Frame:", None, -1))
         self.label_8.setText(QtWidgets.QApplication.translate("MainWindow", "View:", None, -1))
+        self.pushButton.setToolTip(QtWidgets.QApplication.translate("MainWindow", "Skip to next frame missing any of the displayed annotations", None, -1))
         self.pushButton.setText(QtWidgets.QApplication.translate("MainWindow", "Missing Any", None, -1))
+        self.pushButton_2.setToolTip(QtWidgets.QApplication.translate("MainWindow", "Skip to next frame missing all of the displayed annotations", None, -1))
         self.pushButton_2.setText(QtWidgets.QApplication.translate("MainWindow", "Missing All", None, -1))
 

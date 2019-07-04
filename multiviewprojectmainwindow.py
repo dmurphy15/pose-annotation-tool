@@ -114,6 +114,10 @@ class MultiviewProjectMainWindow(QMainWindow):
 		self.ui.doubleSpinBox.valueChanged.connect(self.setRadius)
 		self.ui.doubleSpinBox.setValue(self.radius)
 
+		# set up skip to next frame missing any/all displayed annotations
+		self.ui.pushButton.clicked.connect(self.skipMissingAny)
+		self.ui.pushButton_2.clicked.connect(self.skipMissingAll)
+
 		# add buttons for labeling and displaying annotations
 		self.labelingButtons = []
 		self.displayingButtons = []
@@ -173,6 +177,7 @@ class MultiviewProjectMainWindow(QMainWindow):
 		for j, joint in enumerate(self.cfg.joints):
 			d = data2d[joint]
 			if d.isna().any():
+				self.labelingButtons[j].setText(joint+'*')
 				continue
 			self.mainView.addAnnotation(QPointF(d['u'] * r.width(), d['v'] * r.height()), self.colors[j], self.radius, joint)
 			self.labelingButtons[j].setText(joint)
@@ -328,6 +333,24 @@ class MultiviewProjectMainWindow(QMainWindow):
 
 		return preds3d
 
+	def skipMissingAny(self):
+		cols = [self.cfg.joints[idx] for idx in self.displaying]
+		data = self.data_pixel.loc[self.cfg.views[self.viewIdx], cols]
+		missing = data.isna().any(axis=1)
+		idx = missing[missing].index.get_loc(self.images[self.imageIdx])
+		image = missing[missing].index[idx+1]
+		idx = missing.index.get_loc(image)
+		self.ui.spinBox.setValue(idx)
+
+	def skipMissingAll(self):
+		cols = [self.cfg.joints[idx] for idx in self.displaying]
+		data = self.data_pixel.loc[self.cfg.views[self.viewIdx], cols]
+		missing = data.isna().all(axis=1)
+		idx = missing[missing].index.get_loc(self.images[self.imageIdx])
+		image = missing[missing].index[idx+1]
+		idx = missing.index.get_loc(image)
+		self.ui.spinBox.setValue(idx)
+
 	def keyPressEvent(self, event):
 		if event.key() == Qt.Key_V:
 			self.ui.comboBox.setCurrentIndex((self.viewIdx + 1) % len(self.cfg.views))
@@ -344,7 +367,7 @@ class MultiviewProjectMainWindow(QMainWindow):
 			self.jointIdx = idx
 			self.labelingButtons[self.jointIdx].setChecked(True)
 
-	def close(self):
-		pd.to_csv('pixel-annotation-data.csv', self.data_pixel)
-		pd.to_csv('3d-annotation-data.csv', self.data_3d)
-		super(MultiviewProjectMainWindow, self).close()
+	def closeEvent(self, event):
+		pd.to_csv(os.path.join(self.cfg.projectFolder, 'pixel-annotation-data.csv', self.data_pixel))
+		pd.to_csv(os.path.join(self.cfg.projectFolder, '3d-annotation-data.csv', self.data_3d))
+		super(MultiviewProjectMainWindow, self).closeEvent(event)

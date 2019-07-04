@@ -208,6 +208,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton">
+        <property name="toolTip">
+         <string>Skip to next frame missing any of the displayed annotations</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
+        </property>
         <property name="text">
          <string>Missing Any</string>
         </property>
@@ -215,6 +221,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_2">
+        <property name="toolTip">
+         <string>Skip to next frame missing all of the displayed annotations</string>
+        </property>
         <property name="text">
          <string>Missing All</string>
         </property>

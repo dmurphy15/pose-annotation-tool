@@ -94,8 +94,8 @@ class MainImageView(QGraphicsView):
 
 	def mousePressEvent(self, event):
 		super(MainImageView, self).mousePressEvent(event)
-		if event.button == Qt.RightButton:
-			self.photoRightClicked.emit()
+		if event.button() == Qt.RightButton:
+			self.photoRightClicked.emit() 
 			return
 		if self._photo.isUnderMouse():
 			self._mousePressed = True
