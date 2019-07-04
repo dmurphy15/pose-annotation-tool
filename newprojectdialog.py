@@ -4,6 +4,7 @@ from PySide2.QtWidgets import QDialog, QFileDialog
 from ui_newprojectdialog import Ui_Dialog as Ui_NewProjectDialog
 from alert import Alert
 from enterprojectionmatrices import EnterProjectionMatrices
+from collections import OrderedDict
 
 
 class NewProjectDialog(QDialog):
@@ -17,34 +18,25 @@ class NewProjectDialog(QDialog):
 		'.jpg'
 	]
 	
-	def __init__(self, mainWindow):
-		self.mainWindow = mainWindow
+	def __init__(self, projectPathToOpen):
+		self.projectPathToOpen = projectPathToOpen
 		super(NewProjectDialog, self).__init__()
 		self.ui = Ui_NewProjectDialog()
 		self.ui.setupUi(self)
 		
-		self.projectPath = os.path.join(os.getcwd(), 'Untitled')
-		self.imagePath = os.getcwd()
-		self.viewNames = self.getViewNames()
-		self.imageExtension = self.imageExtensions[0]
-		self.projectMode = self.projectModes[0]
-		
 		# selecting project path
-		self.ui.lineEdit.setText(self.projectPath)
-		self.ui.lineEdit.textChanged.connect(self.setProjectPath)
+		self.ui.lineEdit.setText(os.path.join(os.getcwd(), 'Untitled'))
 		self.ui.pushButton.clicked.connect(self.selectProjectPath)
 		# selecting image directory path
-		self.ui.lineEdit_2.setText(self.imagePath)
-		self.ui.lineEdit_2.textChanged.connect(self.setImagePath)
+		self.ui.lineEdit_2.setText(os.getcwd())
+		self.ui.lineEdit_2.textChanged.connect(self.setViewNames)
 		self.ui.pushButton_2.clicked.connect(self.selectImagePath)
-		# selecting image extension
-		self.ui.comboBox.currentTextChanged.connect(self.setImageExtension)
 		# selecting project mode
 		self.ui.comboBox_2.currentTextChanged.connect(self.setProjectMode)
 		# displaying view names
 		self.ui.label_5.setHidden(True)
 		self.ui.scrollArea.setHidden(True)
-		self.ui.label_6.setText('\n'.join(self.viewNames))
+		self.ui.label_6.setText('\n'.join(self.getViewNames(os.getcwd())))
 	
 		# ok
 		self.ui.pushButton_3.clicked.connect(self.ok)
@@ -55,7 +47,7 @@ class NewProjectDialog(QDialog):
 		dialog = QFileDialog(self)
 		dialog.setFileMode(QFileDialog.AnyFile)
 		dialog.setOption(dialog.ShowDirsOnly, True)
-		dialog.selectFile(self.projectPath)
+		dialog.selectFile(self.ui.lineEdit_2.text())
 		dialog.setWindowTitle('Name A New Directory For Project')
 		if dialog.exec_():
 			self.ui.lineEdit.setText(dialog.selectedFiles()[0])
@@ -63,57 +55,67 @@ class NewProjectDialog(QDialog):
 	def selectImagePath(self):
 		dialog = QFileDialog(self)
 		dialog.setFileMode(QFileDialog.DirectoryOnly)
-		dialog.selectFile(self.imagePath)
+		dialog.selectFile(self.ui.lineEdit_2.text())
 		dialog.setWindowTitle('Select Directory Where Images Are Stored')
 		if dialog.exec_():
 			self.ui.lineEdit_2.setText(dialog.selectedFiles()[0])
 			
-	def setProjectPath(self, text):
-		self.projectPath = text
-	def setImagePath(self, text):
-		self.imagePath = text
-		self.viewNames = self.getViewNames()
-		self.ui.label_6.setText('\n'.join(self.viewNames))
-	def setImageExtension(self, ext):
-		self.imageExtension = ext
-	def setProjectMode(self, mode):
-		self.projectMode = mode
-		self.ui.label_5.setHidden(mode!='RGB Multi View')
-		self.ui.scrollArea.setHidden(mode!='RGB Multi View')
-	def getViewNames(self):
-		try:
-			return next(os.walk(self.imagePath))[1]
-		except:
+	def setViewNames(self, text):
+		self.ui.label_6.setText('\n'.join(self.getViewNames(text)))
+	def setProjectMode(self, mode): 
+		hide = mode!='RGB Multi View' 
+		self.ui.label_5.setHidden(hide)
+		self.ui.scrollArea.setHidden(hide)
+	def getViewNames(self, imagePath):
+		try: 
+			return sorted(next(os.walk(imagePath))[1])
+		except: 
 			return []
 		
 	def ok(self):
-		if not os.path.exists(self.imagePath):
+		imagePath = self.ui.lineEdit_2.text()
+		if not os.path.exists(imagePath):
 			Alert('Please select an image folder path that exists.').exec_()
 			return
-		if os.path.exists(self.projectPath):
+		projectPath = self.ui.lineEdit.text()
+		if os.path.exists(projectPath):
 			Alert('Please choose a project folder path that does not already exist.').exec_()
 			return
-		if self.projectMode == 'RGB Multi View':
-			if len(self.viewNames) < 2:
+		jointNames = OrderedDict.fromkeys(map(lambda s: s.strip(), self.ui.textEdit.toPlainText().split('\n')))
+		jointNames.pop('', None)
+		jointNames = list(jointNames.keys())
+		if len(jointNames)==0:
+			Alert('Please enter at least one joint to label.').exec_()
+			return
+		projectMode = self.ui.comboBox_2.currentText()
+		if projectMode == 'RGB Multi View':
+			viewNames = sorted(self.getViewNames(imagePath))
+			if len(viewNames) < 2:
 				Alert('Multiview mode must have at least 2 views. (Each view will correspond to a folder inside the ' + \
 					'image folder path)').exec_()
 				return
-			# this will prompt the user and set projectionMatrices
-			d = EnterProjectionMatrices(self)
+			# this will prompt the user and put the projection matrices into the list
+			projectionMatrices = []
+			d = EnterProjectionMatrices(viewNames, projectionMatrices)
 			if not d.exec_():
 				return
+		imageExtension = self.ui.comboBox.currentText()
 		try:
-			os.mkdir(self.projectPath)
-			f = open(os.path.join(self.projectPath, 'cfg.yaml'), 'w')
+			os.mkdir(projectPath)
+			f = open(os.path.join(projectPath, 'cfg.yaml'), 'w')
 			cfg = {
-				'imageFolder': self.imagePath,
-				'imageExtension': self.imageExtension,
-				'mode': self.projectMode
+				'projectFolder': projectPath,
+				'imageFolder': imagePath,
+				'imageExtension': imageExtension,
+				'mode': projectMode,
+				'joints': jointNames
 			}
-			if self.projectMode == 'RGB Multi View':
-				cfg['projectionMatrices'] = { self.viewNames[i]: self.projectionMatrices[i] for i in range(len(self.viewNames)) }
+			if projectMode == 'RGB Multi View':
+				cfg['views'] = viewNames
+				cfg['projectionMatrices'] = projectionMatrices 
 			yaml.dump(cfg, f)
+
+			self.projectPathToOpen.append(projectPath)
 			self.done(1)
-			self.mainWindow.doOpenProject(self.projectPath)
 		except Exception as e:
 			Alert(str(e)).exec_()

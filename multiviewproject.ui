@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1071</width>
-    <height>687</height>
+    <width>1008</width>
+    <height>710</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_6">
+   <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,0,0,0">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,4,1">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0,1,0">
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
@@ -27,22 +27,25 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="comboBox">
-          <item>
-           <property name="text">
-            <string>Joint x</string>
+         <widget class="QScrollArea" name="scrollArea_3">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_3">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>159</width>
+             <height>229</height>
+            </rect>
            </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Joint y</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Joint z</string>
-           </property>
-          </item>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="0">
+             <widget class="QWidget" name="widget_5" native="true"/>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
         <item>
@@ -62,56 +65,41 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>169</width>
-             <height>490</height>
+             <width>159</width>
+             <height>228</height>
             </rect>
            </property>
-           <widget class="QCheckBox" name="checkBox">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>129</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Joint x</string>
-            </property>
-           </widget>
-           <widget class="QCheckBox" name="checkBox_2">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>30</y>
-              <width>129</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Joint y</string>
-            </property>
-           </widget>
-           <widget class="QCheckBox" name="checkBox_3">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>50</y>
-              <width>129</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Joint z</string>
-            </property>
-           </widget>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="1" column="0">
+             <widget class="QWidget" name="widget_6" native="true"/>
+            </item>
+           </layout>
           </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_8" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Radius:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QLabel" name="label">
           <property name="font">
@@ -120,7 +108,7 @@
            </font>
           </property>
           <property name="text">
-           <string>View 1</string>
+           <string>View: x</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -128,7 +116,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QGraphicsView" name="graphicsView"/>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Image:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -142,38 +137,13 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>171</width>
-           <height>560</height>
+           <width>161</width>
+           <height>554</height>
           </rect>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0">
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <item>
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>View 1</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGraphicsView" name="graphicsView_2"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <item>
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>View 2</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGraphicsView" name="graphicsView_4"/>
-            </item>
-           </layout>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QWidget" name="widget_7" native="true"/>
           </item>
          </layout>
         </widget>
@@ -199,10 +169,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinBox"/>       
-        <property name="minimum">
-         <number>0</number>
-        </property>
+       <widget class="QSpinBox" name="spinBox"/>
       </item>
       <item>
        <widget class="QWidget" name="widget_3" native="true"/>
@@ -227,13 +194,34 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinBox_2"/>
-        <property name="minimum">
-         <number>0</number>
-        </property>
+       <widget class="QComboBox" name="comboBox"/>
       </item>
       <item>
        <widget class="QWidget" name="widget_4" native="true"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,0,0,1">
+      <item>
+       <widget class="QWidget" name="widget_11" native="true"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Missing Any</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>Missing All</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widget_10" native="true"/>
       </item>
      </layout>
     </item>
@@ -244,7 +232,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1071</width>
+     <width>1008</width>
      <height>21</height>
     </rect>
    </property>

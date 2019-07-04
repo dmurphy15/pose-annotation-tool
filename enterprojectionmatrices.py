@@ -1,12 +1,14 @@
 import numpy as np
-from PySide2.QtWidgets import QDialog
+from PySide2.QtWidgets import QDialog, QStyle
+from PySide2.QtGui import QIcon
 from ui_enterprojectionmatrices import Ui_Dialog as Ui_EnterProjectionMatrices
 from alert import Alert
 
 
 class EnterProjectionMatrices(QDialog):
-	def __init__(self, parentWindow):
-		self.parentWindow = parentWindow
+	def __init__(self, viewNames, projectionMatrices):
+		self.viewNames = viewNames
+		self.projectionMatrices = projectionMatrices
 		super(EnterProjectionMatrices, self).__init__()
 		self.ui = Ui_EnterProjectionMatrices()
 		self.ui.setupUi(self)
@@ -18,47 +20,54 @@ class EnterProjectionMatrices(QDialog):
 		]
 
 		self.selectedView = 0
-		self.viewNames = parentWindow.viewNames
-		self.projectionMatrices = [np.zeros([3, 4]) for _ in self.viewNames]
+		for _ in self.viewNames:
+			self.projectionMatrices.append([[0.0 for _ in range(4)] for _ in range(3)])
 		self.fillProjMatForm()
 
 		self.ui.label_5.setText('Projection Matrix for View: %s'%self.viewNames[self.selectedView])
 		self.ui.pushButton_5.clicked.connect(self.advanceView)
+		self.ui.pushButton_5.setText('')
+		self.ui.pushButton_5.setIcon(QIcon(self.style().standardIcon(QStyle.SP_ArrowForward)))
 		self.ui.pushButton_6.clicked.connect(self.revertView)
-
-		for row in range(3):
-			for col in range(4):
-				self.projMatForm[row][col].textChanged.connect(self.setProjMatElement(row, col))
+		self.ui.pushButton_6.setText('')
+		self.ui.pushButton_6.setIcon(QIcon(self.style().standardIcon(QStyle.SP_ArrowBack)))
 
 		self.ui.pushButton_3.clicked.connect(self.ok)
 		self.ui.pushButton_4.clicked.connect(self.close)
 
 	def advanceView(self):
+		if not self.saveProjMatForm():
+			return
 		self.selectedView = (self.selectedView + 1) % len(self.viewNames)
 		self.ui.label_5.setText('Projection Matrix for View: %s'%self.viewNames[self.selectedView])
 		self.fillProjMatForm()
 	def revertView(self):
+		if not self.saveProjMatForm():
+			return
 		self.selectedView = (self.selectedView - 1 + len(self.viewNames)) % len(self.viewNames)
 		self.ui.label_5.setText('Projection Matrix for View: %s'%self.viewNames[self.selectedView])
 		self.fillProjMatForm()
-	def setProjMatElement(self, row, col):
-		def f(val):
-			try:
-				v = float(val)
-				self.projectionMatrices[self.selectedView][row, col] = v
-			except ValueError:
-				self.projMatForm[row][col].setText(str(self.projectionMatrices[self.selectedView][row, col]))
-		return f
-			
+	
+	def saveProjMatForm(self):
+		try:
+			projMat = [[float(self.projMatForm[row][col].text()) for col in range(4)] for row in range(3)]
+		except:
+			Alert('All entries must be numbers.').exec_()
+			return False
+		self.projectionMatrices[self.selectedView] = projMat
+		return True
+
+
 	def fillProjMatForm(self):
 		p = self.projectionMatrices[self.selectedView]
 		for row in range(3):
 			for col in range(4):
-				self.projMatForm[row][col].setText(str(p[row, col]))
+				self.projMatForm[row][col].setText(str(p[row][col]))
 
 	def ok(self):
+		if not self.saveProjMatForm():
+			return
 		if np.equal(self.projectionMatrices, 0).all(axis=(1,2)).any():
 			Alert('At least one projection matrix was all 0.').exec_()
 			return
-		self.parentWindow.projectionMatrices = [p.tolist() for p in self.projectionMatrices]
 		self.done(1)

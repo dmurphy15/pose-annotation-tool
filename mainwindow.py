@@ -1,7 +1,7 @@
 import os
 from collections import namedtuple
 import yaml
-from PySide2.QtWidgets import QMainWindow
+from PySide2.QtWidgets import QMainWindow, QFileDialog
 from ui_mainwindow import Ui_MainWindow
 from newprojectdialog import NewProjectDialog
 from singleviewprojectmainwindow import SingleviewProjectMainWindow
@@ -18,13 +18,20 @@ class MainWindow(QMainWindow):
 		self.ui.setupUi(self)
 		
 		self.ui.actionNew_Project.triggered.connect(self.startNewProject)
+		self.ui.actionOpen_Project.triggered.connect(self.startOpenProject)
 		
 	def startNewProject(self):
-		d = NewProjectDialog(self)
-		d.exec_()
+		projectPathToOpen = []
+		d = NewProjectDialog(projectPathToOpen)
+		if d.exec_():
+			self.doOpenProject(projectPathToOpen[0])
 			
 	def startOpenProject(self):
-		pass
+		dialog = QFileDialog(self)
+		dialog.setFileMode(QFileDialog.DirectoryOnly)
+		dialog.setWindowTitle('Choose the project to open')
+		if dialog.exec_():
+			self.doOpenProject(dialog.selectedFiles()[0])
 			
 	def doOpenProject(self, projectPath):
 		f = open(os.path.join(projectPath, 'cfg.yaml'), 'r')
@@ -43,3 +50,4 @@ class MainWindow(QMainWindow):
 		self.openProjectWindows[self.projectWindowIdGenerator] = w
 		self.projectWindowIdGenerator += 1
 		w.show()
+		
