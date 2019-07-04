@@ -1,9 +1,9 @@
 import os
 import yaml
 from PySide2.QtWidgets import QDialog, QFileDialog
-from ui_newprojectdialog import Ui_Dialog as Ui_NewProjectDialog
-from alert import Alert
-from enterprojectionmatrices import EnterProjectionMatrices
+from ui_py.ui_newprojectdialog import Ui_Dialog as Ui_NewProjectDialog
+from util.alert import Alert
+from .enterprojectionmatrices import EnterProjectionMatrices
 from collections import OrderedDict
 
 

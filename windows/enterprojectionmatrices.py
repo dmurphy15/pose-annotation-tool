@@ -1,8 +1,8 @@
 import numpy as np
 from PySide2.QtWidgets import QDialog, QStyle
 from PySide2.QtGui import QIcon
-from ui_enterprojectionmatrices import Ui_Dialog as Ui_EnterProjectionMatrices
-from alert import Alert
+from ui_py.ui_enterprojectionmatrices import Ui_Dialog as Ui_EnterProjectionMatrices
+from util.alert import Alert
 
 
 class EnterProjectionMatrices(QDialog):

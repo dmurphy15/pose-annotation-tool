@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import QDialog
-from ui_confirm import Ui_Dialog as Ui_Confirm
+from ui_py.ui_confirm import Ui_Dialog as Ui_Confirm
 
 class Confirm(QDialog):
 	def __init__(self, msg):

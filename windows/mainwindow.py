@@ -2,12 +2,12 @@ import os
 from collections import namedtuple
 import yaml
 from PySide2.QtWidgets import QMainWindow, QFileDialog
-from ui_mainwindow import Ui_MainWindow
-from newprojectdialog import NewProjectDialog
-from singleviewprojectmainwindow import SingleviewProjectMainWindow
-from multiviewprojectmainwindow import MultiviewProjectMainWindow
-from depthprojectmainwindow import DepthProjectMainWindow
-from alert import Alert
+from ui_py.ui_mainwindow import Ui_MainWindow
+from .newprojectdialog import NewProjectDialog
+from .singleviewprojectmainwindow import SingleviewProjectMainWindow
+from .multiviewprojectmainwindow import MultiviewProjectMainWindow
+from .depthprojectmainwindow import DepthProjectMainWindow
+from util.alert import Alert
 
 class MainWindow(QMainWindow):    
 	def __init__(self):

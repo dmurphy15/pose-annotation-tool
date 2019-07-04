@@ -5,10 +5,10 @@ import pandas as pd
 from PySide2.QtWidgets import QMainWindow, QRadioButton, QCheckBox, QWidget, QVBoxLayout, QLabel, QGraphicsView
 from PySide2.QtGui import QPixmap, QColor
 from PySide2.QtCore import Qt, QPointF
-from ui_singleviewproject import Ui_MainWindow as Ui_SingleviewProjectMainWindow
-from alert import Alert
-from confirm import Confirm
-from imageviews import MainImageView, ImageView
+from ui_py.ui_singleviewproject import Ui_MainWindow as Ui_SingleviewProjectMainWindow
+from util.alert import Alert
+from util.confirm import Confirm
+from .imageviews import MainImageView, ImageView
 
 class SingleviewProjectMainWindow(QMainWindow):
 	def __init__(self, cfg):

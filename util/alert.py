@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import QDialog
-from ui_alert import Ui_Dialog as Ui_Alert
+from ui_py.ui_alert import Ui_Dialog as Ui_Alert
 
 class Alert(QDialog):
 	def __init__(self, msg):
