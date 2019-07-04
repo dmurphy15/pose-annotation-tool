@@ -2,6 +2,9 @@
 Tool for annotating image sequences to build datasets for pose-estimation
 
 ## Use:
+### Requirements:
+Requires numpy, pandas, pyyaml, and pyside2. You can install them all with a package manager like conda.
+
 ### Modes:
 #### Single View Project:
 Annotate images from a single view.
