@@ -56,7 +56,7 @@ class ImageView(QGraphicsView):
 		self._scene.addItem(d)
 
 	def removeAnnotation(self, key):
-		self._scene.removeItem(self._annotations.pop(key))
+		self._scene.removeItem(self._annotations.pop(key, None))
 
 	def hideAnnotation(self, key):
 		if key in self._annotations:

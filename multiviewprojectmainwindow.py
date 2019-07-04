@@ -265,12 +265,17 @@ class MultiviewProjectMainWindow(QMainWindow):
 
 	# preds3d is just (x,y,z)
 	def compute2d(self, preds3d):
-		preds3d_aug = np.concatenate([preds3d, [1]], axis=0)
-		A = np.vstack(self.cfg.projectionMatrices)
-		preds2d = np.matmul(A, preds3d_aug)
-		preds2d = preds2d.reshape([-1, 3])
-		preds2d = preds2d[:, :2] / preds2d[:, 2, None]
-		return preds2d # num_views x 2
+		try:
+			preds3d_aug = np.concatenate([preds3d, [1]], axis=0)
+			A = np.vstack(self.cfg.projectionMatrices)
+			preds2d = np.matmul(A, preds3d_aug)
+			preds2d = preds2d.reshape([-1, 3])
+			preds2d = preds2d[:, :2] / preds2d[:, 2, None]
+			return preds2d # num_views x 2
+		except Exception as e:
+			Alert('Something went wrong while projecting annotations: %s. Are your projection matrices correct?'%str(e)).exec_()
+			self.close()
+			return None
 
 	def addAnnotations(self, preds2d):
 		# rescale them to match image dimensions
@@ -296,43 +301,47 @@ class MultiviewProjectMainWindow(QMainWindow):
 	def project_3d(self):
 		# kind of want to solve linear system to get 3D coordinates minimizing l2 error
 		# helpful explanation of equation found on pg 5 here: https://hal.inria.fr/inria-00524401/PDF/Sturm-cvpr05.pdf
+		try:
+			preds2d = self.data_pixel.loc[[(view, self.images[self.imageIdx]) for view in self.cfg.views], self.cfg.joints[self.jointIdx]]
+			labeledViews = np.arange(len(self.cfg.views))[preds2d.loc[:, 'u'].notna().values]
 
-		preds2d = self.data_pixel.loc[[(view, self.images[self.imageIdx]) for view in self.cfg.views], self.cfg.joints[self.jointIdx]]
-		labeledViews = np.arange(len(self.cfg.views))[preds2d.loc[:, 'u'].notna().values]
+			if len(labeledViews) <= 1:
+				return None
 
-		if len(labeledViews) <= 1:
+			num_views = len(labeledViews)
+			preds2d = preds2d.values[labeledViews, :]
+			preds2d = np.concatenate([preds2d, np.ones([num_views, 1])], axis=1)
+			mats = np.array(self.cfg.projectionMatrices)[labeledViews]
+
+			A1 = np.vstack(mats)
+			A2 = np.zeros([3*num_views, num_views])
+			A = np.concatenate([A1, A2], axis=1).astype(np.float)
+
+			updates_rows = np.arange(3*num_views)
+			updates_cols = np.repeat(np.arange(num_views)+4, 3)
+			A[updates_rows, updates_cols] = -1*preds2d.reshape([3*num_views])
+
+			u, s, vh = np.linalg.svd(A)
+			preds3d = vh[-1] # bottom row of V^T is eigenvector of smallest singular value
+
+			# now make our 3d predictions consistent with the current view, possibly at the expense of the others
+			# we can do this by subtracting the basis row vectors of our current projection matrix
+			for idx, v in enumerate(labeledViews):
+				if v == self.viewIdx:
+					break
+			space = A[3*idx:3*(idx+1), :].T
+			Q, _ = np.linalg.qr(space)
+			components = np.matmul(Q.T, preds3d)[:,None] * Q.T
+			preds3d = preds3d - np.sum(components, axis=0)
+
+
+			preds3d = preds3d[:3] / preds3d[3] 
+
+			return preds3d
+		except Exception as e:
+			Alert('Something went wrong while projecting annotations: %s. Are your projection matrices correct?'%str(e)).exec_()
+			self.close()
 			return None
-
-		num_views = len(labeledViews)
-		preds2d = preds2d.values[labeledViews, :]
-		preds2d = np.concatenate([preds2d, np.ones([num_views, 1])], axis=1)
-		mats = np.array(self.cfg.projectionMatrices)[labeledViews]
-
-		A1 = np.vstack(mats)
-		A2 = np.zeros([3*num_views, num_views])
-		A = np.concatenate([A1, A2], axis=1).astype(np.float)
-
-		updates_rows = np.arange(3*num_views)
-		updates_cols = np.repeat(np.arange(num_views)+4, 3)
-		A[updates_rows, updates_cols] = -1*preds2d.reshape([3*num_views])
-
-		u, s, vh = np.linalg.svd(A)
-		preds3d = vh[-1] # bottom row of V^T is eigenvector of smallest singular value
-
-		# now make our 3d predictions consistent with the current view, possibly at the expense of the others
-		# we can do this by subtracting the basis row vectors of our current projection matrix
-		for idx, v in enumerate(labeledViews):
-			if v == self.viewIdx:
-				break
-		space = A[3*idx:3*(idx+1), :].T
-		Q, _ = np.linalg.qr(space)
-		components = np.matmul(Q.T, preds3d)[:,None] * Q.T
-		preds3d = preds3d - np.sum(components, axis=0)
-
-
-		preds3d = preds3d[:3] / preds3d[3] 
-
-		return preds3d
 
 	def skipMissingAny(self):
 		cols = [self.cfg.joints[idx] for idx in self.displaying]
