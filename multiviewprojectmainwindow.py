@@ -277,6 +277,7 @@ class MultiviewProjectMainWindow(QMainWindow):
 			preds2d = np.matmul(A, preds3d_aug)
 			preds2d = preds2d.reshape([-1, 3])
 			preds2d = preds2d[:, :2] / preds2d[:, 2, None]
+			preds2d[np.isinf(preds2d)] = np.nan
 			return preds2d # num_views x 2
 		except Exception as e:
 			Alert('Something went wrong while projecting annotations: %s. Are your projection matrices correct?'%str(e)).exec_()
