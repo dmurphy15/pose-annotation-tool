@@ -212,6 +212,12 @@ class MultiviewProjectMainWindow(QMainWindow):
 		self.ui.label.setText('View: %s'%str(self.cfg.views[self.viewIdx]))
 		self.mainView.setPhoto(self.miniViews[index]['view'].getPixmap())
 		self.mainView.setAnnotations(self.miniViews[index]['view'].getAnnotations())
+		labeled = self.miniViews[index]['view'].getAnnotations()
+		for i, joint in enumerate(self.cfg.joints):
+			if joint in labeled:
+				self.labelingButtons[i].setText(joint)
+			else:
+				self.labelingButtons[i].setText(joint+'*')
 
 	def setRadius(self, r):
 		self.radius = r
